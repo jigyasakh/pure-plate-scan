@@ -28,7 +28,7 @@ const tests = [
       "Pure turmeric settles at the bottom",
       "Adulterated turmeric leaves colored streaks",
     ],
-    image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
   },
   {
     id: "oil",
