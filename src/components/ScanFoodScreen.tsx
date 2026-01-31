@@ -162,7 +162,8 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
                 autoPlay
                 playsInline
                 muted
-                className="w-full h-72 object-cover bg-foreground"
+                className="w-full h-72 object-cover bg-black"
+                style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
               />
               
               {/* Camera Controls Overlay */}
