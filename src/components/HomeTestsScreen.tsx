@@ -1,4 +1,5 @@
-import { ArrowLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 
 interface HomeTestsScreenProps {
   onBack: () => void;
@@ -27,7 +28,7 @@ const tests = [
       "Pure turmeric settles at the bottom",
       "Adulterated turmeric leaves colored streaks",
     ],
-    image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&h=300&fit=crop",
   },
   {
     id: "oil",
@@ -51,11 +52,23 @@ const tests = [
       "Pure honey will light the match",
       "Adulterated honey won't light due to moisture",
     ],
-    image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&h=300&fit=crop",
   },
 ];
 
 const HomeTestsScreen = ({ onBack }: HomeTestsScreenProps) => {
+  const [expandedTests, setExpandedTests] = useState<string[]>([]);
+
+  const toggleExpand = (testId: string) => {
+    setExpandedTests(prev => 
+      prev.includes(testId) 
+        ? prev.filter(id => id !== testId)
+        : [...prev, testId]
+    );
+  };
+
+  const isExpanded = (testId: string) => expandedTests.includes(testId);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -103,24 +116,54 @@ const HomeTestsScreen = ({ onBack }: HomeTestsScreenProps) => {
                   {test.description}
                 </p>
 
-                {/* Steps */}
+                {/* Steps - Show only first step initially */}
                 <div className="bg-secondary rounded-xl p-4 mb-4">
                   <h4 className="font-medium text-secondary-foreground text-sm mb-2">How to test:</h4>
                   <ol className="space-y-2">
-                    {test.steps.map((step, stepIndex) => (
-                      <li key={stepIndex} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    {/* Always show first step */}
+                    <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                        1
+                      </span>
+                      {test.steps[0]}
+                    </li>
+                    
+                    {/* Show remaining steps only when expanded */}
+                    {isExpanded(test.id) && test.steps.slice(1).map((step, stepIndex) => (
+                      <li 
+                        key={stepIndex + 1} 
+                        className="flex items-start gap-2 text-sm text-muted-foreground animate-fade-in"
+                      >
                         <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                          {stepIndex + 1}
+                          {stepIndex + 2}
                         </span>
                         {step}
                       </li>
                     ))}
+                    
+                    {/* Show dots when collapsed */}
+                    {!isExpanded(test.id) && (
+                      <li className="flex items-center gap-1 text-muted-foreground pl-7">
+                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                      </li>
+                    )}
                   </ol>
                 </div>
 
-                <button className="w-full flex items-center justify-between py-3 px-4 bg-primary/10 rounded-xl text-primary hover:bg-primary/20 transition-colors">
-                  <span className="font-medium text-sm">Step-by-Step Tips</span>
-                  <ChevronRight className="w-5 h-5" />
+                <button 
+                  onClick={() => toggleExpand(test.id)}
+                  className="w-full flex items-center justify-between py-3 px-4 bg-primary/10 rounded-xl text-primary hover:bg-primary/20 transition-colors"
+                >
+                  <span className="font-medium text-sm">
+                    {isExpanded(test.id) ? "Hide Steps" : "Step-by-Step Tips"}
+                  </span>
+                  {isExpanded(test.id) ? (
+                    <ChevronUp className="w-5 h-5" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
