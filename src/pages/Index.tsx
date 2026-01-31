@@ -3,7 +3,8 @@ import SplashScreen from "@/components/SplashScreen";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import ScanFoodScreen from "@/components/ScanFoodScreen";
 import HomeTestsScreen from "@/components/HomeTestsScreen";
-import ReportAlertsScreen from "@/components/ReportAlertsScreen";
+import ReportScreen from "@/components/ReportScreen";
+import AlertsScreen from "@/components/AlertsScreen";
 
 type Screen = "splash" | "welcome" | "scan" | "tests" | "report" | "alerts";
 
@@ -36,8 +37,12 @@ const Index = () => {
         <HomeTestsScreen onBack={handleBack} />
       )}
       
-      {(currentScreen === "report" || currentScreen === "alerts") && (
-        <ReportAlertsScreen onBack={handleBack} />
+      {currentScreen === "report" && (
+        <ReportScreen onBack={handleBack} />
+      )}
+      
+      {currentScreen === "alerts" && (
+        <AlertsScreen onBack={handleBack} />
       )}
     </div>
   );
