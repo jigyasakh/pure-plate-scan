@@ -86,13 +86,13 @@ const AnalysisResult = ({ imageUrl, onBack, onHome }: AnalysisResultProps) => {
               {!result.isClean && (
                 <>
                   {/* Detected Adulterant */}
-                  <div className="bg-card rounded-2xl p-5 shadow-card mb-4 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl gradient-warning flex items-center justify-center text-2xl">
+                  <div className="bg-card rounded-2xl p-5 sm:p-6 shadow-card mb-4 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-14 h-14 rounded-2xl gradient-warning flex items-center justify-center text-3xl shadow-soft">
                         {result.adulterant.icon}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-card-foreground">{result.adulterant.name}</h3>
+                        <h3 className="font-bold text-card-foreground text-lg">{result.adulterant.name}</h3>
                         <p className="text-muted-foreground text-sm">Potential contaminant</p>
                       </div>
                     </div>
@@ -113,26 +113,26 @@ const AnalysisResult = ({ imageUrl, onBack, onHome }: AnalysisResultProps) => {
                   </div>
 
                   {/* Learn More */}
-                  <button className="w-full bg-card rounded-2xl p-4 shadow-soft mb-4 flex items-center justify-between group hover:shadow-card transition-all animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+                  <button className="w-full bg-card rounded-2xl p-5 shadow-soft mb-4 flex items-center justify-between group hover:shadow-card hover:-translate-y-0.5 transition-all animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <Info className="w-5 h-5 text-primary" />
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <Info className="w-6 h-6 text-primary" />
                       </div>
                       <span className="font-medium text-card-foreground">Learn more about {result.adulterant.name}</span>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                   </button>
                 </>
               )}
 
               {result.isClean && (
-                <div className="bg-card rounded-2xl p-5 shadow-card mb-4 animate-fade-in-up">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 rounded-xl gradient-success flex items-center justify-center text-2xl">
+                <div className="bg-card rounded-2xl p-5 sm:p-6 shadow-card mb-4 animate-fade-in-up">
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="w-14 h-14 rounded-2xl gradient-success flex items-center justify-center text-3xl shadow-soft">
                       ✓
                     </div>
                     <div>
-                      <h3 className="font-semibold text-card-foreground">No Issues Detected</h3>
+                      <h3 className="font-bold text-card-foreground text-lg">No Issues Detected</h3>
                       <p className="text-muted-foreground text-sm">This sample appears to be safe</p>
                     </div>
                   </div>
@@ -146,32 +146,57 @@ const AnalysisResult = ({ imageUrl, onBack, onHome }: AnalysisResultProps) => {
             {/* Right Column - Tips and Actions */}
             <div>
               {/* Safety Tips */}
-              <div className="bg-secondary rounded-2xl p-5 mb-6 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-                <h4 className="font-semibold text-secondary-foreground mb-3">💡 Safety Tips</h4>
-                <ul className="space-y-2">
+              <div className="bg-secondary rounded-2xl p-5 sm:p-6 mb-6 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+                <h4 className="font-bold text-secondary-foreground mb-4 text-lg">💡 Safety Tips</h4>
+                <ul className="space-y-3">
                   {tips.map((tip, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <span className="text-primary">•</span>
+                    <li key={index} className="flex items-start gap-3 text-sm text-muted-foreground">
+                      <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-primary text-xs font-bold">{index + 1}</span>
+                      </span>
                       {tip}
                     </li>
                   ))}
                 </ul>
               </div>
 
+              {/* Disclaimer */}
+              <div className="bg-secondary border border-border rounded-2xl p-4 mb-6 animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Info className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-card-foreground font-medium">Important Disclaimer</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Results indicate risk level, not lab confirmation. Image-based analysis has limitations and should not replace professional testing.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Actions */}
               <div className="space-y-3">
                 <button
                   onClick={onBack}
-                  className="w-full gradient-primary text-primary-foreground font-semibold py-4 rounded-2xl shadow-card hover:shadow-elevated transition-all duration-300"
+                  className="w-full gradient-primary text-primary-foreground font-semibold py-4 rounded-2xl shadow-card hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300"
                 >
                   Scan Another Sample
                 </button>
                 <button
                   onClick={onHome}
-                  className="w-full bg-card text-card-foreground font-semibold py-4 rounded-2xl shadow-soft hover:shadow-card transition-all duration-300"
+                  className="w-full bg-card text-card-foreground font-semibold py-4 rounded-2xl shadow-soft hover:shadow-card hover:-translate-y-0.5 transition-all duration-300"
                 >
                   Back to Home
                 </button>
+              </div>
+
+              {/* Footer Badge */}
+              <div className="mt-6 text-center">
+                <div className="inline-flex items-center gap-2 bg-secondary/80 px-4 py-2 rounded-full">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-xs font-medium text-muted-foreground">Prototype v1.1</span>
+                </div>
               </div>
             </div>
           </div>

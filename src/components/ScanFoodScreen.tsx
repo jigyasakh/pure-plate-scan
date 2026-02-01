@@ -1,10 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowLeft, Camera, Upload, X, Loader2, SwitchCamera } from "lucide-react";
+import { ArrowLeft, Camera, Upload, X, Loader2, SwitchCamera, Check, Image, Scan } from "lucide-react";
 import AnalysisResult from "./AnalysisResult";
 
 interface ScanFoodScreenProps {
   onBack: () => void;
 }
+
+const steps = [
+  { id: 1, label: "Capture", icon: Camera },
+  { id: 2, label: "Analyzing", icon: Scan },
+  { id: 3, label: "Results", icon: Check },
+];
 
 const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -14,6 +20,7 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [isInitializing, setIsInitializing] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -38,14 +45,12 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
     setCameraError(null);
     setIsInitializing(true);
     
-    // Stop any existing stream first
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
     
     try {
-      // Request camera permission with getUserMedia
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: mode,
@@ -60,7 +65,6 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         
-        // Wait for video to be ready
         await new Promise<void>((resolve, reject) => {
           if (!videoRef.current) {
             reject(new Error("Video element not found"));
@@ -93,7 +97,6 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
         } else if (error.name === "NotReadableError" || error.name === "TrackStartError") {
           setCameraError("Camera is in use by another application. Please close other apps using the camera.");
         } else if (error.name === "OverconstrainedError") {
-          // Try again with basic constraints
           try {
             const basicStream = await navigator.mediaDevices.getUserMedia({
               video: true,
@@ -141,7 +144,6 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
       const video = videoRef.current;
       const canvas = canvasRef.current;
       
-      // Ensure video has valid dimensions
       if (video.videoWidth === 0 || video.videoHeight === 0) {
         setCameraError("Unable to capture photo. Please try again.");
         return;
@@ -152,7 +154,6 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
       
       const ctx = canvas.getContext("2d");
       if (ctx) {
-        // Handle mirror effect for front camera
         if (facingMode === "user") {
           ctx.translate(canvas.width, 0);
           ctx.scale(-1, 1);
@@ -179,9 +180,11 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
   const handleAnalyze = () => {
     if (!selectedImage) return;
     setIsAnalyzing(true);
+    setCurrentStep(2);
     
     setTimeout(() => {
       setIsAnalyzing(false);
+      setCurrentStep(3);
       setShowResult(true);
     }, 3500);
   };
@@ -191,6 +194,7 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
     setShowResult(false);
     setIsAnalyzing(false);
     setCameraError(null);
+    setCurrentStep(1);
   };
 
   if (showResult) {
@@ -199,7 +203,6 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hidden canvas for photo capture */}
       <canvas ref={canvasRef} className="hidden" />
       
       {/* Header */}
@@ -211,6 +214,7 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
               onBack();
             }}
             className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground mb-4 transition-colors"
+            disabled={isAnalyzing}
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="text-sm font-medium">Back</span>
@@ -224,6 +228,39 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
 
       <div className="px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-4xl mx-auto">
+          {/* Step Indicator */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between max-w-md mx-auto">
+              {steps.map((step, index) => {
+                const StepIcon = step.icon;
+                const isActive = currentStep >= step.id;
+                const isCurrent = currentStep === step.id;
+                
+                return (
+                  <div key={step.id} className="flex items-center">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                        isActive 
+                          ? "gradient-primary shadow-soft" 
+                          : "bg-secondary"
+                      } ${isCurrent && isAnalyzing ? "animate-pulse-glow" : ""}`}>
+                        <StepIcon className={`w-5 h-5 ${isActive ? "text-primary-foreground" : "text-muted-foreground"}`} />
+                      </div>
+                      <span className={`text-xs mt-2 font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                        {step.label}
+                      </span>
+                    </div>
+                    {index < steps.length - 1 && (
+                      <div className={`w-12 sm:w-20 h-1 mx-2 rounded-full transition-all duration-300 ${
+                        currentStep > step.id ? "gradient-primary" : "bg-secondary"
+                      }`} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {cameraActive || isInitializing ? (
             <>
               {/* Live Camera View */}
@@ -245,12 +282,11 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
                   style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
                 />
                 
-                {/* Camera Controls Overlay */}
                 {!isInitializing && (
                   <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
                     <button
                       onClick={switchCamera}
-                      className="w-12 h-12 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-soft hover:bg-card transition-colors"
+                      className="w-12 h-12 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-soft hover:bg-card hover:-translate-y-0.5 transition-all"
                       title="Switch Camera"
                     >
                       <SwitchCamera className="w-6 h-6 text-card-foreground" />
@@ -258,7 +294,7 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
                     
                     <button
                       onClick={capturePhoto}
-                      className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-card hover:opacity-90 transition-opacity"
+                      className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center shadow-card hover:shadow-elevated hover:scale-105 transition-all"
                       title="Capture Photo"
                     >
                       <div className="w-12 h-12 rounded-full border-4 border-primary-foreground" />
@@ -266,7 +302,7 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
                     
                     <button
                       onClick={stopCamera}
-                      className="w-12 h-12 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-soft hover:bg-card transition-colors"
+                      className="w-12 h-12 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-soft hover:bg-card hover:-translate-y-0.5 transition-all"
                       title="Close Camera"
                     >
                       <X className="w-6 h-6 text-card-foreground" />
@@ -285,15 +321,15 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
                 {/* Camera Button */}
                 <button
                   onClick={handleOpenCamera}
-                  className="w-full bg-card rounded-2xl p-6 sm:p-8 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 group"
+                  className="w-full bg-card rounded-3xl p-7 sm:p-8 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1.5 group"
                 >
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full gradient-primary flex items-center justify-center group-hover:animate-pulse-glow">
-                      <Camera className="w-8 sm:w-10 h-8 sm:h-10 text-primary-foreground" />
+                  <div className="flex flex-col items-center gap-5">
+                    <div className="w-18 sm:w-20 h-18 sm:h-20 rounded-2xl gradient-primary flex items-center justify-center group-hover:animate-pulse-glow shadow-soft">
+                      <Camera className="w-9 sm:w-10 h-9 sm:h-10 text-primary-foreground" />
                     </div>
                     <div className="text-center">
-                      <h3 className="font-semibold text-card-foreground text-lg">Open Camera</h3>
-                      <p className="text-muted-foreground text-sm mt-1">
+                      <h3 className="font-bold text-card-foreground text-xl">Open Camera</h3>
+                      <p className="text-muted-foreground text-sm mt-1.5">
                         Take a photo of your food
                       </p>
                     </div>
@@ -301,7 +337,7 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
                 </button>
 
                 {cameraError && (
-                  <div className="bg-destructive/10 text-destructive rounded-xl p-4 text-sm text-center">
+                  <div className="bg-destructive/10 text-destructive rounded-2xl p-4 text-sm text-center border border-destructive/20">
                     {cameraError}
                   </div>
                 )}
@@ -316,14 +352,14 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
                 {/* Gallery Upload */}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full bg-card rounded-2xl p-5 sm:p-6 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 border-2 border-dashed border-primary/30 group"
+                  className="w-full bg-card rounded-3xl p-6 sm:p-7 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 border-2 border-dashed border-primary/30 group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Upload className="w-6 sm:w-7 h-6 sm:h-7 text-primary" />
+                    <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Image className="w-7 sm:w-8 h-7 sm:h-8 text-primary" />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-semibold text-card-foreground">Upload from Gallery</h3>
+                      <h3 className="font-bold text-card-foreground text-lg">Upload from Gallery</h3>
                       <p className="text-muted-foreground text-sm mt-0.5">
                         Select an existing photo
                       </p>
@@ -331,7 +367,6 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
                   </div>
                 </button>
 
-                {/* Hidden File Input - Only for gallery */}
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -342,25 +377,17 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
               </div>
 
               {/* Tips */}
-              <div className="bg-secondary rounded-2xl p-5 h-fit">
-                <h4 className="font-semibold text-secondary-foreground mb-3">📸 Tips for best results</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
-                    Ensure good lighting
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
-                    Focus on the food item clearly
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
-                    Avoid blurry or dark images
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
-                    Center the food in frame
-                  </li>
+              <div className="bg-secondary rounded-3xl p-6 h-fit">
+                <h4 className="font-bold text-secondary-foreground mb-4 text-lg">📸 Tips for best results</h4>
+                <ul className="space-y-3 text-sm text-muted-foreground">
+                  {["Ensure good lighting", "Focus on the food item clearly", "Avoid blurry or dark images", "Center the food in frame"].map((tip, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-primary text-xs font-bold">{i + 1}</span>
+                      </span>
+                      {tip}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -373,40 +400,61 @@ const ScanFoodScreen = ({ onBack }: ScanFoodScreenProps) => {
                   alt="Selected food"
                   className="w-full h-64 sm:h-80 lg:h-96 object-cover"
                 />
-                <button
-                  onClick={handleReset}
-                  className="absolute top-3 right-3 w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-soft hover:bg-card transition-colors"
-                >
-                  <X className="w-5 h-5 text-card-foreground" />
-                </button>
+                {!isAnalyzing && (
+                  <button
+                    onClick={handleReset}
+                    className="absolute top-3 right-3 w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-soft hover:bg-card hover:scale-105 transition-all"
+                  >
+                    <X className="w-5 h-5 text-card-foreground" />
+                  </button>
+                )}
 
                 {isAnalyzing && (
-                  <div className="absolute inset-0 bg-foreground/60 backdrop-blur-sm flex flex-col items-center justify-center">
+                  <div className="absolute inset-0 bg-foreground/70 backdrop-blur-sm flex flex-col items-center justify-center">
+                    {/* Scan Line Animation */}
+                    <div className="absolute inset-0 overflow-hidden">
+                      <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-scan-line" />
+                    </div>
+                    
                     <div className="relative w-32 h-32">
                       <div className="absolute inset-0 rounded-full border-4 border-primary-foreground/30" />
                       <div className="absolute inset-0 rounded-full border-4 border-t-primary-foreground animate-spin-slow" />
-                      <div className="absolute inset-4 rounded-full bg-primary/20 backdrop-blur-sm flex items-center justify-center">
-                        <Loader2 className="w-10 h-10 text-primary-foreground animate-spin" />
+                      <div className="absolute inset-4 rounded-full bg-primary/30 backdrop-blur-sm flex items-center justify-center">
+                        <Scan className="w-10 h-10 text-primary-foreground animate-pulse" />
                       </div>
                     </div>
-                    <p className="text-primary-foreground font-medium mt-4">Analyzing food sample...</p>
-                    <p className="text-primary-foreground/70 text-sm mt-1">Please wait</p>
+                    <p className="text-primary-foreground font-semibold mt-6 text-lg">Analyzing food sample...</p>
+                    <p className="text-primary-foreground/70 text-sm mt-1">AI is checking for adulterants</p>
                   </div>
                 )}
               </div>
 
               {!isAnalyzing && (
-                <div className="max-w-md mx-auto">
+                <div className="max-w-md mx-auto space-y-4">
                   <button
                     onClick={handleAnalyze}
-                    className="w-full gradient-primary text-primary-foreground font-semibold py-4 rounded-2xl shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-0.5"
+                    className="w-full gradient-primary text-primary-foreground font-semibold py-4 rounded-2xl shadow-card hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300"
                   >
                     Analyze Food Sample
+                  </button>
+                  <button
+                    onClick={handleReset}
+                    className="w-full bg-card text-card-foreground font-semibold py-4 rounded-2xl shadow-soft hover:shadow-card hover:-translate-y-0.5 transition-all duration-300"
+                  >
+                    Retake Photo
                   </button>
                 </div>
               )}
             </>
           )}
+
+          {/* Footer Badge */}
+          <div className="mt-8 text-center">
+            <div className="inline-flex items-center gap-2 bg-secondary/80 px-4 py-2 rounded-full">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-xs font-medium text-muted-foreground">Prototype v1.1</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
