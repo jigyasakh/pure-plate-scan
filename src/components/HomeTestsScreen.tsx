@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, Info } from "lucide-react";
 
 interface HomeTestsScreenProps {
   onBack: () => void;
@@ -90,66 +90,68 @@ const HomeTestsScreen = ({ onBack }: HomeTestsScreenProps) => {
 
       <div className="px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-6xl mx-auto">
-          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
             {tests.map((test, index) => (
               <div
                 key={test.id}
-                className="bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className="bg-card rounded-3xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 animate-fade-in-up"
+                style={{ animationDelay: `${index * 0.1}s`, opacity: 0 }}
               >
                 {/* Image */}
-                <div className="relative h-36 sm:h-44 lg:h-48">
+                <div className="relative h-40 sm:h-48 lg:h-52">
                   <img
                     src={test.image}
                     alt={test.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-                  <div className="absolute bottom-3 left-3">
-                    <span className="text-3xl sm:text-4xl">{test.emoji}</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
+                  <div className="absolute bottom-4 left-4">
+                    <div className="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center shadow-soft">
+                      <span className="text-2xl">{test.emoji}</span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-4 sm:p-5">
-                  <h3 className="font-semibold text-card-foreground text-lg sm:text-xl mb-1">
+                <div className="p-5 sm:p-6">
+                  <h3 className="font-bold text-card-foreground text-lg sm:text-xl mb-1.5">
                     {test.title}
                   </h3>
-                  <p className="text-muted-foreground text-sm mb-4">
+                  <p className="text-muted-foreground text-sm mb-5">
                     {test.description}
                   </p>
 
-                  {/* Steps - Show only first step initially */}
-                  <div className="bg-secondary rounded-xl p-4 mb-4">
-                    <h4 className="font-medium text-secondary-foreground text-sm mb-2">How to test:</h4>
-                    <ol className="space-y-2">
+                  {/* Steps */}
+                  <div className="bg-secondary rounded-2xl p-4 sm:p-5 mb-4">
+                    <h4 className="font-semibold text-secondary-foreground text-sm mb-3">How to test:</h4>
+                    <ol className="space-y-3">
                       {/* Always show first step */}
-                      <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <li className="flex items-start gap-3 text-sm text-muted-foreground">
+                        <span className="w-6 h-6 rounded-full gradient-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5 shadow-soft font-bold">
                           1
                         </span>
-                        {test.steps[0]}
+                        <span className="pt-0.5">{test.steps[0]}</span>
                       </li>
                       
                       {/* Show remaining steps only when expanded */}
                       {isExpanded(test.id) && test.steps.slice(1).map((step, stepIndex) => (
                         <li 
                           key={stepIndex + 1} 
-                          className="flex items-start gap-2 text-sm text-muted-foreground animate-fade-in"
+                          className="flex items-start gap-3 text-sm text-muted-foreground animate-fade-in"
                         >
-                          <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="w-6 h-6 rounded-full gradient-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5 shadow-soft font-bold">
                             {stepIndex + 2}
                           </span>
-                          {step}
+                          <span className="pt-0.5">{step}</span>
                         </li>
                       ))}
                       
                       {/* Show dots when collapsed */}
                       {!isExpanded(test.id) && (
-                        <li className="flex items-center gap-1 text-muted-foreground pl-7">
-                          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                        <li className="flex items-center gap-1.5 text-muted-foreground pl-9">
+                          <span className="w-2 h-2 rounded-full bg-primary/40" />
+                          <span className="w-2 h-2 rounded-full bg-primary/30" />
+                          <span className="w-2 h-2 rounded-full bg-primary/20" />
                         </li>
                       )}
                     </ol>
@@ -157,9 +159,9 @@ const HomeTestsScreen = ({ onBack }: HomeTestsScreenProps) => {
 
                   <button 
                     onClick={() => toggleExpand(test.id)}
-                    className="w-full flex items-center justify-between py-3 px-4 bg-primary/10 rounded-xl text-primary hover:bg-primary/20 transition-colors"
+                    className="w-full flex items-center justify-between py-3.5 px-5 gradient-primary rounded-2xl text-primary-foreground hover:shadow-elevated hover:-translate-y-0.5 transition-all shadow-soft"
                   >
-                    <span className="font-medium text-sm">
+                    <span className="font-semibold text-sm">
                       {isExpanded(test.id) ? "Hide Steps" : "Step-by-Step Tips"}
                     </span>
                     {isExpanded(test.id) ? (
@@ -171,6 +173,29 @@ const HomeTestsScreen = ({ onBack }: HomeTestsScreenProps) => {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Disclaimer */}
+          <div className="mt-8 bg-secondary border border-border rounded-2xl p-5">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Info className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold text-card-foreground">Note</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  These home tests provide preliminary indications only. For accurate results, consult certified food testing laboratories.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Badge */}
+          <div className="mt-8 text-center">
+            <div className="inline-flex items-center gap-2 bg-secondary/80 px-4 py-2 rounded-full">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-xs font-medium text-muted-foreground">Prototype v1.1</span>
+            </div>
           </div>
         </div>
       </div>
