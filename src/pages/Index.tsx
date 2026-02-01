@@ -5,6 +5,7 @@ import ScanFoodScreen from "@/components/ScanFoodScreen";
 import HomeTestsScreen from "@/components/HomeTestsScreen";
 import ReportScreen from "@/components/ReportScreen";
 import AlertsScreen from "@/components/AlertsScreen";
+import { AlertsProvider } from "@/contexts/AlertsContext";
 
 type Screen = "splash" | "welcome" | "scan" | "tests" | "report" | "alerts";
 
@@ -20,31 +21,33 @@ const Index = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto min-h-screen bg-background">
-      {currentScreen === "splash" && (
-        <SplashScreen onComplete={() => setCurrentScreen("welcome")} />
-      )}
-      
-      {currentScreen === "welcome" && (
-        <WelcomeScreen onNavigate={handleNavigate} />
-      )}
-      
-      {currentScreen === "scan" && (
-        <ScanFoodScreen onBack={handleBack} />
-      )}
-      
-      {currentScreen === "tests" && (
-        <HomeTestsScreen onBack={handleBack} />
-      )}
-      
-      {currentScreen === "report" && (
-        <ReportScreen onBack={handleBack} />
-      )}
-      
-      {currentScreen === "alerts" && (
-        <AlertsScreen onBack={handleBack} />
-      )}
-    </div>
+    <AlertsProvider>
+      <div className="min-h-screen bg-background">
+        {currentScreen === "splash" && (
+          <SplashScreen onComplete={() => setCurrentScreen("welcome")} />
+        )}
+        
+        {currentScreen === "welcome" && (
+          <WelcomeScreen onNavigate={handleNavigate} />
+        )}
+        
+        {currentScreen === "scan" && (
+          <ScanFoodScreen onBack={handleBack} />
+        )}
+        
+        {currentScreen === "tests" && (
+          <HomeTestsScreen onBack={handleBack} />
+        )}
+        
+        {currentScreen === "report" && (
+          <ReportScreen onBack={handleBack} />
+        )}
+        
+        {currentScreen === "alerts" && (
+          <AlertsScreen onBack={handleBack} />
+        )}
+      </div>
+    </AlertsProvider>
   );
 };
 

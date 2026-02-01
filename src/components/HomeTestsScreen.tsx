@@ -72,102 +72,106 @@ const HomeTestsScreen = ({ onBack }: HomeTestsScreenProps) => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="gradient-header px-5 pt-12 pb-8 rounded-b-[2rem]">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground mb-4 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm font-medium">Back</span>
-        </button>
-        <h1 className="text-2xl font-bold text-primary-foreground">Home Tests</h1>
-        <p className="text-primary-foreground/80 text-sm mt-1">
-          Simple DIY tests you can do at home
-        </p>
+      <div className="gradient-header px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-6 sm:pb-8 rounded-b-[2rem]">
+        <div className="max-w-6xl mx-auto">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary-foreground">Home Tests</h1>
+          <p className="text-primary-foreground/80 text-sm sm:text-base mt-1">
+            Simple DIY tests you can do at home
+          </p>
+        </div>
       </div>
 
-      <div className="px-5 py-6">
-        <div className="space-y-4">
-          {tests.map((test, index) => (
-            <div
-              key={test.id}
-              className="bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 animate-fade-in-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              {/* Image */}
-              <div className="relative h-36">
-                <img
-                  src={test.image}
-                  alt={test.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-                <div className="absolute bottom-3 left-3">
-                  <span className="text-3xl">{test.emoji}</span>
+      <div className="px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
+            {tests.map((test, index) => (
+              <div
+                key={test.id}
+                className="bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 animate-fade-in-up"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                {/* Image */}
+                <div className="relative h-36 sm:h-44 lg:h-48">
+                  <img
+                    src={test.image}
+                    alt={test.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
+                  <div className="absolute bottom-3 left-3">
+                    <span className="text-3xl sm:text-4xl">{test.emoji}</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Content */}
-              <div className="p-4">
-                <h3 className="font-semibold text-card-foreground text-lg mb-1">
-                  {test.title}
-                </h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  {test.description}
-                </p>
+                {/* Content */}
+                <div className="p-4 sm:p-5">
+                  <h3 className="font-semibold text-card-foreground text-lg sm:text-xl mb-1">
+                    {test.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    {test.description}
+                  </p>
 
-                {/* Steps - Show only first step initially */}
-                <div className="bg-secondary rounded-xl p-4 mb-4">
-                  <h4 className="font-medium text-secondary-foreground text-sm mb-2">How to test:</h4>
-                  <ol className="space-y-2">
-                    {/* Always show first step */}
-                    <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                        1
-                      </span>
-                      {test.steps[0]}
-                    </li>
-                    
-                    {/* Show remaining steps only when expanded */}
-                    {isExpanded(test.id) && test.steps.slice(1).map((step, stepIndex) => (
-                      <li 
-                        key={stepIndex + 1} 
-                        className="flex items-start gap-2 text-sm text-muted-foreground animate-fade-in"
-                      >
+                  {/* Steps - Show only first step initially */}
+                  <div className="bg-secondary rounded-xl p-4 mb-4">
+                    <h4 className="font-medium text-secondary-foreground text-sm mb-2">How to test:</h4>
+                    <ol className="space-y-2">
+                      {/* Always show first step */}
+                      <li className="flex items-start gap-2 text-sm text-muted-foreground">
                         <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
-                          {stepIndex + 2}
+                          1
                         </span>
-                        {step}
+                        {test.steps[0]}
                       </li>
-                    ))}
-                    
-                    {/* Show dots when collapsed */}
-                    {!isExpanded(test.id) && (
-                      <li className="flex items-center gap-1 text-muted-foreground pl-7">
-                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                      </li>
-                    )}
-                  </ol>
-                </div>
+                      
+                      {/* Show remaining steps only when expanded */}
+                      {isExpanded(test.id) && test.steps.slice(1).map((step, stepIndex) => (
+                        <li 
+                          key={stepIndex + 1} 
+                          className="flex items-start gap-2 text-sm text-muted-foreground animate-fade-in"
+                        >
+                          <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                            {stepIndex + 2}
+                          </span>
+                          {step}
+                        </li>
+                      ))}
+                      
+                      {/* Show dots when collapsed */}
+                      {!isExpanded(test.id) && (
+                        <li className="flex items-center gap-1 text-muted-foreground pl-7">
+                          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                        </li>
+                      )}
+                    </ol>
+                  </div>
 
-                <button 
-                  onClick={() => toggleExpand(test.id)}
-                  className="w-full flex items-center justify-between py-3 px-4 bg-primary/10 rounded-xl text-primary hover:bg-primary/20 transition-colors"
-                >
-                  <span className="font-medium text-sm">
-                    {isExpanded(test.id) ? "Hide Steps" : "Step-by-Step Tips"}
-                  </span>
-                  {isExpanded(test.id) ? (
-                    <ChevronUp className="w-5 h-5" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5" />
-                  )}
-                </button>
+                  <button 
+                    onClick={() => toggleExpand(test.id)}
+                    className="w-full flex items-center justify-between py-3 px-4 bg-primary/10 rounded-xl text-primary hover:bg-primary/20 transition-colors"
+                  >
+                    <span className="font-medium text-sm">
+                      {isExpanded(test.id) ? "Hide Steps" : "Step-by-Step Tips"}
+                    </span>
+                    {isExpanded(test.id) ? (
+                      <ChevronUp className="w-5 h-5" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
